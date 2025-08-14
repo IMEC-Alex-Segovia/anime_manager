@@ -1,6 +1,6 @@
 import tkinter as tk
-from MainForm import *
+from anime_manager import AnimeManager
 
 if __name__ == "__main__":
-    app = MainForm()
+    app = AnimeManager()
     app.boot()
