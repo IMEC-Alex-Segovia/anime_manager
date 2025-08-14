@@ -8,6 +8,7 @@ __pycache__/
 # Archivos de configuración del sistema
 .DS_Store
 Thumbs.db
+.gitignore
 
 # Archivos de logs
 *.log
