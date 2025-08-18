@@ -33,7 +33,7 @@ class AnimeManager(MainForm):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS anime (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
+                title TEXT NOT NULL,
                 episodes INTEGER NOT NULL,
                 rate TEXT NOT NULL,
                 state TEXT NOT NULL,

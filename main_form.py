@@ -23,7 +23,7 @@ class MainForm:
         # === SEARCH ===
         self.search_frame = ttk.Frame(self.root)
         self.search_frame.pack(pady=5)
-        self.search_label = ttk.Label(self.search_frame, text="Anime:")
+        self.search_label = ttk.Label(self.search_frame, text="Título:")
         self.search_label.pack(side=tk.LEFT, padx=5)
         self.search_entry = ttk.Entry(self.search_frame, width=self.SEARCH_ENTRY_WIDTH)
         self.search_entry.pack(side=tk.LEFT, padx=5)
@@ -81,6 +81,6 @@ class MainForm:
         self.time_button = ttk.Button(self.buttons_frame, text="Tiempo")
         self.time_button.pack(side=tk.LEFT, padx=10)
 
-    def boot(self):
+    def start(self):
         self._setup_ui()
         self.root.mainloop()
