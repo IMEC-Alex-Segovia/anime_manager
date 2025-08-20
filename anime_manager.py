@@ -2,6 +2,7 @@ from main_form import MainForm
 from pathlib import Path
 import os
 import sqlite3
+from anime import Anime
 
 class AnimeManager(MainForm):
     def __init__(self):
@@ -44,3 +45,26 @@ class AnimeManager(MainForm):
         ''')
         conn.commit()
         conn.close()
+    
+    def get_anime_list(self):
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM anime")
+        animes = cursor.fetchall()
+        return [
+            Anime(
+                id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
+                state=anime[4], episode_duration=anime[5], genre=anime[6], type=[7]
+                ) for anime in animes
+        ]
+
+    def update_anime_treeview(self):
+        for item in self.anime_list_tree.get_children():
+            self.anime_list_tree.delete(item)
+        for anime in self.get_anime_list():
+            self.anime_list_tree.insert("","end",values=anime.get_anime_trevieew_data())
+    
+    def start(self):
+        self._setup_ui()
+        self.update_anime_treeview()
+        self.root.mainloop()

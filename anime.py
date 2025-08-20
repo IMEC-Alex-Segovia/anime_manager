@@ -8,3 +8,6 @@ class Anime:
         self.state = state
         self.genre = genre
         self.type = type
+    
+    def get_anime_trevieew_data(self) -> tuple:
+        return (self.title, self.episodes, self.rate, self.genre, self.state)
