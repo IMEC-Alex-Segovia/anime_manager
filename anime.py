@@ -11,3 +11,6 @@ class Anime:
     
     def get_anime_trevieew_data(self) -> tuple:
         return (self.title, self.episodes, self.rate, self.genre, self.state)
+    # title, episodes, rate, state, episode_duration, genre, type
+    def get_anime_sql_data(self) -> tuple:
+        return (self.title, self.episodes, self.rate, self.state, self.episode_duration, self.genre, self.type)

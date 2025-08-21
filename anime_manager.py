@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 import sqlite3
 from anime import Anime
+from add_anime_form import AddAnimeForm
 
 class AnimeManager(MainForm):
     def __init__(self):
@@ -67,4 +68,23 @@ class AnimeManager(MainForm):
     def start(self):
         self._setup_ui()
         self.update_anime_treeview()
+        self.add_button.configure(command=self.open_add_anime_form)
         self.root.mainloop()
+
+    def open_add_anime_form(self):
+        AddAnimeForm(self.root, self.add_new_anime, self.RATE_LIST, self.STATE_LIST, self.GENRE_LIST, self.TYPE_LIST)
+    
+    def add_new_anime(self, anime : Anime):
+        try:
+            conn = sqlite3.connect(self.DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO anime (title, episodes, rate, state, episode_duration, genre, type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                anime.get_anime_sql_data()
+            )
+            conn.commit()
+            conn.close()
+            self.update_anime_treeview()
+            return True
+        except:
+            return False
