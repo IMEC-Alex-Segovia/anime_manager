@@ -4,6 +4,7 @@ import os
 import sqlite3
 from anime import Anime
 from add_anime_form import AddAnimeForm
+from tkinter import messagebox
 
 class AnimeManager(MainForm):
     def __init__(self):
@@ -69,6 +70,7 @@ class AnimeManager(MainForm):
         self._setup_ui()
         self.update_anime_treeview()
         self.add_button.configure(command=self.open_add_anime_form)
+        self.remove_button.configure(command=self.remove_anime)
         self.root.mainloop()
 
     def open_add_anime_form(self):
@@ -88,3 +90,21 @@ class AnimeManager(MainForm):
             return True
         except:
             return False
+    
+    def remove_anime(self):
+        selected_anime = self.anime_list_tree.selection()
+        if selected_anime:
+            confirm = messagebox.askokcancel("Confirmación", "¿Estás seguro de querer borrar este Anime?")
+            if not confirm:
+                return
+            
+            anime_id = selected_anime[0]
+            conn = sqlite3.connect(self.DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM anime WHERE id = ?", (anime_id,))
+            conn.commit()
+            conn.close()
+            self.update_anime_treeview()
+            messagebox.showinfo("Éxito", "Anime borrado exitosamente")
+        else:
+            messagebox.showwarning("Advertencia", "Seleccione un Anime para borrar")
