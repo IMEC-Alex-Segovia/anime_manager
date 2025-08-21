@@ -71,6 +71,7 @@ class AnimeManager(MainForm):
         self.update_anime_treeview()
         self.add_button.configure(command=self.open_add_anime_form)
         self.remove_button.configure(command=self.remove_anime)
+        self.time_button.configure(command=self.show_time_watching_anime)
         self.root.mainloop()
 
     def open_add_anime_form(self):
@@ -108,3 +109,24 @@ class AnimeManager(MainForm):
             messagebox.showinfo("Éxito", "Anime borrado exitosamente")
         else:
             messagebox.showwarning("Advertencia", "Seleccione un Anime para borrar")
+    
+    def get_watched_hours(self):
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT SUM(episodes * episode_duration) AS watched_hours
+            FROM anime
+            WHERE state IN ('Terminado', 'Viendo', 'En pausa')
+        ''')
+        watched_hours = cursor.fetchone()
+        return round(watched_hours[0] / 60, 2) if watched_hours[0] else None
+     
+    def show_time_watching_anime(self):
+        watched_hours = self.get_watched_hours()
+        if watched_hours is None:
+            messagebox.showinfo("Tiempo viendo Anime", "Parece que aun no haz visto Anime")
+            return
+        message = f"¡Usted ha visto {watched_hours} horas de Anime!"
+        if (watched_hours / 24) > 1:
+            message += f"\nEso equivale a {round(watched_hours / 24, 2)} días."
+        messagebox.showinfo("Tiempo viendo Anime", message)
