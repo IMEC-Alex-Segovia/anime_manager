@@ -63,7 +63,7 @@ class AnimeManager(MainForm):
         for item in self.anime_list_tree.get_children():
             self.anime_list_tree.delete(item)
         for anime in self.get_anime_list():
-            self.anime_list_tree.insert("","end",values=anime.get_anime_trevieew_data())
+            self.anime_list_tree.insert("", "end", iid=str(anime.id), values=anime.get_anime_trevieew_data())
     
     def start(self):
         self._setup_ui()

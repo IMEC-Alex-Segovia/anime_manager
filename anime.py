@@ -1,6 +1,7 @@
 class Anime:
     def __init__(self, title: str, id: int = None, episodes : int = 0, episode_duration: int = 25,
                  rate: str = None, genre : list[str] = None, type : str = None, state : str = None):
+        self.id = id
         self.title = title
         self.episodes = episodes
         self.episode_duration = episode_duration
