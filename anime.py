@@ -15,3 +15,6 @@ class Anime:
     
     def get_anime_sql_data(self) -> tuple:
         return (self.title, self.episodes, self.rate, self.state, self.episode_duration, self.genre, self.type)
+    
+    def get_anime_update_data(self):
+        return (self.title, self.episodes, self.rate, self.state, self.episode_duration, self.genre, self.type, self.id)

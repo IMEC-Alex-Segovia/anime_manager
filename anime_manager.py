@@ -5,6 +5,7 @@ import sqlite3
 from anime import Anime
 from add_anime_form import AddAnimeForm
 from tkinter import messagebox
+from edit_anime_form import EditAnimeForm
 
 class AnimeManager(MainForm):
     def __init__(self):
@@ -51,12 +52,12 @@ class AnimeManager(MainForm):
     def get_anime_list(self):
         conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM anime")
+        cursor.execute("SELECT * FROM anime ORDER BY episodes DESC, title ASC")
         animes = cursor.fetchall()
         return [
             Anime(
                 id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
-                state=anime[4], episode_duration=anime[5], genre=anime[6], type=[7]
+                state=anime[4], episode_duration=anime[5], genre=anime[6], type=anime[7]
                 ) for anime in animes
         ]
 
@@ -72,6 +73,7 @@ class AnimeManager(MainForm):
         self.add_button.configure(command=self.open_add_anime_form)
         self.remove_button.configure(command=self.remove_anime)
         self.time_button.configure(command=self.show_time_watching_anime)
+        self.edit_button.configure(command=self.open_edit_anime_form)
         self.root.mainloop()
 
     def open_add_anime_form(self):
@@ -130,3 +132,35 @@ class AnimeManager(MainForm):
         if (watched_hours / 24) > 1:
             message += f"\nEso equivale a {round(watched_hours / 24, 2)} días."
         messagebox.showinfo("Tiempo viendo Anime", message)
+
+    def open_edit_anime_form(self):
+        selected_anime = self.anime_list_tree.selection()
+        if selected_anime:
+            anime = self.get_anime_by_id(selected_anime[0])
+            EditAnimeForm(self.root, on_save_callback=self.edit_anime, anime=anime, rate_list=self.RATE_LIST, 
+                          state_list=self.STATE_LIST, genre_list=self.GENRE_LIST, type_list=self.TYPE_LIST)
+        else:
+            messagebox.showwarning("Advertencia", "Seleccione un Anime para editar")
+    
+    def edit_anime(self, anime : Anime) -> bool:
+        try:
+            conn = sqlite3.connect(self.DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("UPDATE anime SET title = ?, episodes = ?, rate = ?, state = ?, episode_duration = ?, genre = ?, type = ? WHERE id = ?", anime.get_anime_update_data())
+            conn.commit()
+            conn.close()
+            self.update_anime_treeview()
+            return True
+        except:
+            return False
+
+    def get_anime_by_id(self, anime_id: int):
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM anime WHERE id = ?", (anime_id, ))
+        anime = cursor.fetchall()[0]
+        conn.close()
+        return Anime(
+                id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
+                state=anime[4], episode_duration=anime[5], genre=anime[6], type=anime[7]
+                )
