@@ -61,10 +61,13 @@ class AnimeManager(MainForm):
                 ) for anime in animes
         ]
 
-    def update_anime_treeview(self):
+    def update_anime_treeview(self, data : list[Anime] = None):
+        if data is None:
+            data = self.get_anime_list()
+        
         for item in self.anime_list_tree.get_children():
             self.anime_list_tree.delete(item)
-        for anime in self.get_anime_list():
+        for anime in data:
             self.anime_list_tree.insert("", "end", iid=str(anime.id), values=anime.get_anime_trevieew_data())
     
     def start(self):
@@ -74,6 +77,8 @@ class AnimeManager(MainForm):
         self.remove_button.configure(command=self.remove_anime)
         self.time_button.configure(command=self.show_time_watching_anime)
         self.edit_button.configure(command=self.open_edit_anime_form)
+        self.filter_button.configure(command=self.filter_anime_list)
+        self.search_button.configure(command=self.search_anime)
         self.root.mainloop()
 
     def open_add_anime_form(self):
@@ -164,3 +169,57 @@ class AnimeManager(MainForm):
                 id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
                 state=anime[4], episode_duration=anime[5], genre=anime[6], type=anime[7]
                 )
+
+    def filter_anime_list(self):
+        filters = {
+            "rate" : (self.rate_cmbx.get(), self.RATE_LIST),
+            "genre": (self.genre_cmbx.get(), self.GENRE_LIST),
+            "state": (self.state_cmbx.get(), self.STATE_LIST),
+            "type" : (self.type_cmbx.get(), self.TYPE_LIST)
+        }
+
+        conditions = []
+        params = []
+
+        for field, (value, valid_options) in filters.items():
+            if value in valid_options:
+                conditions.append(f"{field} = ?")
+                params.append(value)
+
+        query = "SELECT * FROM anime"
+        
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions) + "ORDER BY episodes DESC, title ASC"
+
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(query, tuple(params))
+        animes = cursor.fetchall()
+        conn.close()
+
+        filtered_anime_list = [
+            Anime(
+                id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
+                state=anime[4], episode_duration=anime[5], genre=anime[6], type=anime[7]
+                ) for anime in animes
+        ]
+
+        self.update_anime_treeview(filtered_anime_list)
+        messagebox.showinfo("Información", "Se han aplicado los filtros seleccionados")
+    
+    def search_anime(self):
+        anime_name = self.search_entry.get().strip().lower()
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM anime WHERE LOWER(title) LIKE LOWER(?)", (f"%{anime_name}%", ))
+        animes = cursor.fetchall()
+        conn.close()
+
+        coincidences = [
+            Anime(
+                id=anime[0], title=anime[1], episodes=anime[2], rate=anime[3],
+                state=anime[4], episode_duration=anime[5], genre=anime[6], type=anime[7]
+                ) for anime in animes
+        ]
+
+        self.update_anime_treeview(coincidences)
